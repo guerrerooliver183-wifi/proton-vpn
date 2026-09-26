@@ -1,0 +1,14 @@
+--- a/app/src/main/java/com/protonvpn/android/redesign/home_screen/ui/HomeViewModel.kt
++++ b/app/src/main/java/com/protonvpn/android/redesign/home_screen/ui/HomeViewModel.kt
+@@ -47,0 +48 @@
++import com.protonvpn.android.redesign.CountryId
+@@ -344 +345,8 @@
+-        vpnConnectionManager.connect(vpnUiDelegate, quickConnectIntent(), trigger)
++        // The main Connect button is intentionally pinned to the fastest server in Japan.
++        // Manual country selection, widgets, auto-connect and other entry points keep their
++        // original behavior because they use GetQuickConnectIntent directly.
++        val japanIntent = ConnectIntent.FastestInCountry(
++            country = CountryId("JP"),
++            features = emptySet(),
++        )
++        vpnConnectionManager.connect(vpnUiDelegate, japanIntent, trigger)
