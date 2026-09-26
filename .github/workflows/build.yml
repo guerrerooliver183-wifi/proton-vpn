@@ -19,6 +19,8 @@ jobs:
         with:
           repository: ProtonVPN/android-app
           path: proton-vpn
+          ref: master
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -42,6 +44,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          CI_COMMIT_BRANCH: master
         run: |
           chmod +x ./gradlew
 
