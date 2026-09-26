@@ -54,7 +54,7 @@ jobs:
           chmod +x ./gradlew
 
           ./gradlew assembleProductionVanillaOpenSourceRelease \
-            -PappId=git.protonvpn.android \
+            -PappId=git.protonvpn.android.jp \
             -PkeyStoreFilePath="$RUNNER_TEMP/release.keystore" \
             -PkeyStoreKeyAlias="$KEYSTORE_ALIAS" \
             -PkeyStorePassword="$KEYSTORE_PASSWORD" \
