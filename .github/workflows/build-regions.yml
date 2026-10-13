@@ -1,0 +1,264 @@
+name: Build ProtonVPN Regional
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-mx:
+    name: Build Mexico
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout builder repository
+        uses: actions/checkout@v6
+
+      - name: Checkout ProtonVPN source
+        uses: actions/checkout@v6
+        with:
+          repository: ProtonVPN/android-app
+          path: proton-vpn
+          ref: master
+          fetch-depth: 0
+
+      - name: Configure main Connect button for Mexico
+        working-directory: proton-vpn
+        run: patch -p1 < "$GITHUB_WORKSPACE/patches/connect-button-mx.patch"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Prepare signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+
+      - name: Build Release
+        working-directory: proton-vpn
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          CI_COMMIT_BRANCH: master
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleProductionVanillaOpenSourceRelease \
+            -PappId=git.protonvpn.android.mx \
+            -PkeyStoreFilePath="$RUNNER_TEMP/release.keystore" \
+            -PkeyStoreKeyAlias="$KEYSTORE_ALIAS" \
+            -PkeyStorePassword="$KEYSTORE_PASSWORD" \
+            -PkeyStoreKeyPassword="$KEY_PASSWORD"
+
+      - name: Upload Mexico APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: protonvpn-mx
+          path: proton-vpn/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  build-jp:
+    name: Build Japan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout builder repository
+        uses: actions/checkout@v6
+
+      - name: Checkout ProtonVPN source
+        uses: actions/checkout@v6
+        with:
+          repository: ProtonVPN/android-app
+          path: proton-vpn
+          ref: master
+          fetch-depth: 0
+
+      - name: Configure main Connect button for Japan
+        working-directory: proton-vpn
+        run: patch -p1 < "$GITHUB_WORKSPACE/patches/connect-button-japan.patch"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Prepare signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+
+      - name: Build Release
+        working-directory: proton-vpn
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          CI_COMMIT_BRANCH: master
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleProductionVanillaOpenSourceRelease \
+            -PappId=git.protonvpn.android.jp \
+            -PkeyStoreFilePath="$RUNNER_TEMP/release.keystore" \
+            -PkeyStoreKeyAlias="$KEYSTORE_ALIAS" \
+            -PkeyStorePassword="$KEYSTORE_PASSWORD" \
+            -PkeyStoreKeyPassword="$KEY_PASSWORD"
+
+      - name: Upload Japan APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: protonvpn-japan
+          path: proton-vpn/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  build-ks:
+    name: Build South Korea
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout builder repository
+        uses: actions/checkout@v6
+
+      - name: Checkout ProtonVPN source
+        uses: actions/checkout@v6
+        with:
+          repository: ProtonVPN/android-app
+          path: proton-vpn
+          ref: master
+          fetch-depth: 0
+
+      - name: Configure main Connect button for South Korea
+        working-directory: proton-vpn
+        run: patch -p1 < "$GITHUB_WORKSPACE/patches/connect-button-south-korea.patch"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Prepare signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+
+      - name: Build Release
+        working-directory: proton-vpn
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          CI_COMMIT_BRANCH: master
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleProductionVanillaOpenSourceRelease \
+            -PappId=git.protonvpn.android.kr \
+            -PkeyStoreFilePath="$RUNNER_TEMP/release.keystore" \
+            -PkeyStoreKeyAlias="$KEYSTORE_ALIAS" \
+            -PkeyStorePassword="$KEYSTORE_PASSWORD" \
+            -PkeyStoreKeyPassword="$KEY_PASSWORD"
+
+      - name: Upload South Korea APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: protonvpn-south-korea
+          path: proton-vpn/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  build-us:
+    name: Build United States
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout builder repository
+        uses: actions/checkout@v6
+
+      - name: Checkout ProtonVPN source
+        uses: actions/checkout@v6
+        with:
+          repository: ProtonVPN/android-app
+          path: proton-vpn
+          ref: master
+          fetch-depth: 0
+
+      - name: Configure main Connect button for United States
+        working-directory: proton-vpn
+        run: patch -p1 < "$GITHUB_WORKSPACE/patches/connect-button-us.patch"
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Prepare signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+
+      - name: Build Release
+        working-directory: proton-vpn
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+          CI_COMMIT_BRANCH: master
+        run: |
+          chmod +x ./gradlew
+          ./gradlew assembleProductionVanillaOpenSourceRelease \
+            -PappId=git.protonvpn.android.us \
+            -PkeyStoreFilePath="$RUNNER_TEMP/release.keystore" \
+            -PkeyStoreKeyAlias="$KEYSTORE_ALIAS" \
+            -PkeyStorePassword="$KEYSTORE_PASSWORD" \
+            -PkeyStoreKeyPassword="$KEY_PASSWORD"
+
+      - name: Upload United States APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: protonvpn-us
+          path: proton-vpn/app/build/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  upload-artifacts:
+    name: Upload Artifacts
+    runs-on: ubuntu-latest
+    needs:
+      - build-mx
+      - build-jp
+      - build-ks
+      - build-us
+    steps:
+      - name: Download regional APKs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: protonvpn-*
+          path: regional-apks
+          merge-multiple: true
+
+      - name: Upload combined regional APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: protonvpn-regional-apks
+          path: regional-apks/**/*.apk
+          if-no-files-found: error
+          retention-days: 7
