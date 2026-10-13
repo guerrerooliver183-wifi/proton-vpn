@@ -1,0 +1,43 @@
+diff --git a/app/src/main/java/com/protonvpn/android/auth/data/VpnUser.kt b/app/src/main/java/com/protonvpn/android/auth/data/VpnUser.kt
+--- a/app/src/main/java/com/protonvpn/android/auth/data/VpnUser.kt
++++ b/app/src/main/java/com/protonvpn/android/auth/data/VpnUser.kt
+@@ -66,7 +66,9 @@ data class VpnUser(
+     @Embedded
+     val netShieldConfig: NetShieldConfig?,
+ ) {
+-    val isFreeUser get() = maxTier == FREE_TIER
++    // Premium fork: expose Plus-level access in the local client UI and selection logic.
++    // The VPN service may still enforce account entitlements server-side.
++    val isFreeUser get() = userTier == FREE_TIER
+     val isBasicUser get() = userTier == BASIC_TIER
+     val isUserBasicOrAbove get() = userTier >= BASIC_TIER
+     val isUserPlusOrAbove get() = userTier >= PLUS_TIER
+@@ -78,7 +80,7 @@ data class VpnUser(
+ 
+     val hasSubscription get() = subscribed != 0
+ 
+-    val userTier: Int get() = maxTier ?: FREE_TIER
++    val userTier: Int get() = maxOf(maxTier ?: FREE_TIER, PLUS_TIER)
+     val userTierName: String get() = planName ?: "free"
+ 
+     companion object {
+diff --git a/app/src/main/java/com/protonvpn/android/redesign/countries/ui/ServerGroupsViewModel.kt b/app/src/main/java/com/protonvpn/android/redesign/countries/ui/ServerGroupsViewModel.kt
+--- a/app/src/main/java/com/protonvpn/android/redesign/countries/ui/ServerGroupsViewModel.kt
++++ b/app/src/main/java/com/protonvpn/android/redesign/countries/ui/ServerGroupsViewModel.kt
+@@ -170,5 +170,5 @@ abstract class ServerGroupsViewModel(
+     // Helper flows
+     val localeFlow = MutableStateFlow<Locale?>(null)
+-    private val userTierFlow = currentUser.vpnUserFlow.map { it?.maxTier }
++    private val userTierFlow = currentUser.vpnUserFlow.map { it?.userTier }
+         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+     private val currentConnectionFlow =
+diff --git a/app/src/main/java/com/protonvpn/android/vpn/VpnConnectionErrorHandler.kt b/app/src/main/java/com/protonvpn/android/vpn/VpnConnectionErrorHandler.kt
+--- a/app/src/main/java/com/protonvpn/android/vpn/VpnConnectionErrorHandler.kt
++++ b/app/src/main/java/com/protonvpn/android/vpn/VpnConnectionErrorHandler.kt
+@@ -511,5 +511,5 @@ class VpnConnectionErrorHandler @Inject constructor(
+             getOnlineServersForIntent(
+                 intent = orgIntent,
+                 protocolOverride = settingsForOrgIntent.protocol,
+-                maxTier = vpnUser?.maxTier ?: VpnUser.FREE_TIER,
++                maxTier = vpnUser?.userTier ?: VpnUser.FREE_TIER,
+             )
