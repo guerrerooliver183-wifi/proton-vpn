@@ -14,25 +14,13 @@ jobs:
       - name: Checkout builder repository
         uses: actions/checkout@v6
 
-      - name: Download ProtonVPN 5.20.39.0 source archive
-        run: |
-          set -euo pipefail
-          ARCHIVE="$RUNNER_TEMP/protonvpn-5.20.39.0.zip"
-          SOURCE_DIR="$RUNNER_TEMP/protonvpn-source"
-          curl --fail --location --retry 3 \
-            https://github.com/ProtonVPN/android-app/archive/refs/tags/5.20.39.0.zip \
-            --output "$ARCHIVE"
-          mkdir -p "$SOURCE_DIR"
-          unzip -q "$ARCHIVE" -d "$SOURCE_DIR"
-          mv "$SOURCE_DIR/android-app-5.20.39.0" "$GITHUB_WORKSPACE/proton-vpn"
-
-          # The archive omits .git; Gradle reads the source tag to derive the app version.
-          cd "$GITHUB_WORKSPACE/proton-vpn"
-          git init --quiet --initial-branch=master
-          git config user.name "GitHub Actions"
-          git config user.email "github-actions@github.com"
-          git commit --quiet --allow-empty -m "Source archive ProtonVPN 5.20.39.0"
-          git tag 5.20.39.0
+      - name: Checkout ProtonVPN source
+        uses: actions/checkout@v6
+        with:
+          repository: ProtonVPN/android-app
+          path: proton-vpn
+          ref: master
+          fetch-depth: 0
 
       - name: Configure main Connect button for United States
         working-directory: proton-vpn
